@@ -1,0 +1,60 @@
+# /etc/init.d/minecraft
+### BEGIN INIT INFO
+# Provides:          minecraft
+# Required-Start:    $network $syslog $remote_fs
+# Required-Stop:     $network $syslog $remote_fs
+# Should-Start:      $named $time
+# Should-Stop:       $named $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop the minecraft daemon for debian/ubuntu
+# Description:       minecraft daemon for linux
+### END INIT INFO
+
+start() {
+  if start-stop-daemon --stop --quiet --pidfile /var/run/minecraft.sh.pid --signal 0; then
+    echo " already running."
+    exit
+  fi
+  echo "Starting minecraft..."
+  start-stop-daemon --start --make-pidfile --pidfile /var/run/minecraft.sh.pid --background --exec /opt/minecraft.sh
+}
+
+stop() {
+  echo "Stopping minecraft..."
+  start-stop-daemon --stop --pidfile /var/run/minecraft.sh.pid
+}
+
+status() {
+  pid=`pgrep -f "java .* minecraft_server\.jar.*"`
+  if [ -z $pid ] ; then
+    echo "minecraft not running."
+  else
+    echo "minecraft running."
+  fi
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+ 
+  stop)
+    stop
+    ;;
+ 
+  restart|reload|force-reload)
+    stop
+    start
+    ;;
+ 
+  status)
+    status
+    ;;
+ 
+  *)
+    echo "Usage: /etc/init.d/minecraft {start|stop|reload|force-reload|restart|status}"
+    exit 1
+esac
+
+exit 0
